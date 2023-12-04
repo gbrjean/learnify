@@ -1,0 +1,111 @@
+@import '../vars';
+@import '../breakpoints';
+
+h2{
+  font-size: 2.2rem;
+}
+
+.cta-header{
+  @include mediaMax(md){
+    flex-direction: column;
+    align-items: initial;
+    gap: 1.5rem;
+
+    button{
+      flex: 1;
+    }
+  }
+}
+
+.wrapper{
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.card{
+  
+  &-group{
+    gap: 2rem;
+    display: flex;
+    flex-direction: column;
+
+    @include mediaMin(xl){
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .card{
+      
+      img{
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+      }
+
+      &:first-child{
+        img{
+          top: 1.6rem;
+        }
+      }
+
+    }
+
+  }
+  
+  padding: 2rem 2.5rem;
+  position: relative;
+
+  span{
+    margin-top: 1.5rem;
+    color: $color-secondary;
+    font-weight: 600;
+  }
+
+}
+
+#results{
+  .card-content{
+    width: fit-content;
+    margin: 1rem auto 3rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .result{
+      display: flex;
+      gap: 5rem;
+
+      div{
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+
+        &:first-child{
+          span{
+            color: #17A700;
+          }
+        }
+
+        &:last-child{
+          span{
+            color: #F55B64;
+          }
+        }
+
+      }
+
+      span{
+        font-weight: 500;
+        font-size: 2.6rem;
+        margin: 0;
+      }
+
+    }
+
+    svg{
+      margin: 2rem 0 1rem 0;
+    }
+
+  }
+}

@@ -1,95 +1,90 @@
+"use client"
+
+import '@styles/homepage/homepage.scss'
+
+import Info from '@components/Info'
 import Image from 'next/image'
-import styles from './page.module.css'
+import Link from "next/link"
+import Quizzes from "@public/assets/images/Quizzes.png"
+import Flashcards from "@public/assets/images/Flashcards.png"
+import QuizMe from "@public/assets/images/QuizMe.png"
+import NewFlashcard from "@public/assets/images/NewFlashcard.png"
+import History from "@public/assets/images/History.png"
+import WordCloud from '@components/WordCloud'
+import QuizListItem from '@components/QuizListItem'
 
-export default function Home() {
+const Homepage = () => {
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <section>
+      <h1>Dashboard</h1>
+
+      <div className="wrapper">
+
+        <div className="card card-inline" id='ci-1'>
+          <Link href="/quizzes" className="big-cta" onClick={() => {}}>
+            <Image src={Quizzes} alt="" />
+            <span>View Quizzes</span>
+          </Link>
+          <Link href="/flashcards" className="big-cta" onClick={() => {}}>
+            <Image src={Flashcards} alt="" />
+            <span>View Flashcards</span>
+          </Link>
         </div>
+
+        <div className="card card-inline" id='ci-2'>
+          <Link href="/collections" className="big-cta" onClick={() => {}}>
+            <Image src={Quizzes} alt="" />
+            <span>View Collections</span>
+            <Info text="Collections are...." />
+          </Link>
+          <Link href="/decks" className="big-cta" onClick={() => {}}>
+            <Image src={Flashcards} alt="" />
+            <span>View Decks</span>
+            <Info text="Decks are...." />
+          </Link>
+        </div>
+
+        <Link href="/create-quiz" className="card card-hoverable" id='qm'>
+          <span className="title">Quiz me!</span>
+          <p>Challenge yourself to a quiz with a topic of your choice.</p>
+          <Image src={QuizMe} alt="" className='card-img' />
+        </Link>
+
+        <Link href="/create-flashcard" className="card card-hoverable" id='nf'>
+          <span className="title">New Flashcard</span>
+          <p>Create a flashcard for your spaced-repetition learning sessions.</p>
+          <Image src={NewFlashcard} alt="" className='card-img' />
+        </Link>
+
+        <div className="card" id='ht'>
+          <span className="title">Hot Topics</span>
+          <p>Click on a topic to start a quiz on it using AI.</p>
+          <WordCloud />
+        </div>
+
+        <Link href="/history" className="card card-hoverable" id='hi'>
+          <span className="title">History</span>
+          <p>View past attempts.</p>
+          <Image src={History} alt="" className='card-img' />
+        </Link>
+
+        <div className="card" id='ra'>
+          <span className="title">Recent Activity</span>
+          <p>You have played a total of 84 quizzes.</p>
+
+          <div className="list">
+            <QuizListItem />
+            <QuizListItem />
+            <QuizListItem />
+          </div>
+
+        </div>
+
       </div>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    </section>
   )
 }
+
+export default Homepage

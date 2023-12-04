@@ -1,0 +1,64 @@
+@import '../vars';
+@import '../breakpoints';
+
+
+main{
+  margin-bottom: 0;
+  height: calc(100vh - 6.4rem);
+  width: 100%;
+  display: grid;
+  place-content: center;
+}
+
+section{
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6rem;
+  padding: 4rem 2rem;
+  width: 100%;
+  max-width: 86rem;
+
+  @include mediaMin(md){
+    flex-direction: row;
+    justify-content: inherit;
+    align-items: center;
+    padding: 4rem 6.5rem 4rem 4rem;
+  }
+}
+
+svg{
+  @include mediaMax(md){
+    align-self: center;
+  }
+}
+
+.content{
+  @include mediaMax(md){
+    text-align: center;
+  }
+
+  flex: 1;
+
+  h1{
+    margin-bottom: 0;
+    color: $color-primary;
+    font-weight: 700;
+    font-size: 2rem;
+  }
+  p{
+    margin: 3rem 0;
+  }
+  button{
+    width: 100%;
+    span{
+      width: 15.8rem;
+      text-align: start;
+    }
+  }
+
+  button + button{
+    margin-top: 2rem;
+  }
+}

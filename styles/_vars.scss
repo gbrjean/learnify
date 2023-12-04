@@ -1,0 +1,15 @@
+$color-text: #171717;
+$color-text-75: rgba($color: #000 , $alpha: 0.75);
+$color-text-50: rgba($color: #000 , $alpha: 0.50);
+
+$color-primary: #0A369D;
+$color-secondary: #4472CA;
+$color-secondary-2: #5E7CE2;
+$color-accent: #92B4F4;
+$color-variant: #CFDEE7;
+$color-gray: #DEDEDE;
+
+$boxShadow: 2px 2px 8px 0px rgba(0, 0, 0, 0.10);
+$boxShadow-hover: 2px 2px 8px 0px $color-secondary-2;
+
+$font: 'Montserrat', sans-serif;
