@@ -17,7 +17,7 @@ const groupSchema = new Schema({
     type: String,
     enum: ['mcq', 'open-ended'],
   },
-  games: { type: mongoose.Schema.Types.ObjectId, ref: 'Game' },
+  games: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Game' }],
   created_at: { type: Date, default: Date.now },
 });
 

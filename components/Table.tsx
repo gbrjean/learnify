@@ -4,11 +4,21 @@ import Image from "next/image";
 import Check from "@public/assets/images/check-answer.png"
 import Cross from "@public/assets/images/cross-answer.png"
 import Accuracy from "@public/assets/images/accuracy.png"
+import Clock from "@public/assets/images/clock-white.png"
 import { DeleteIcon } from "@public/assets/icons/DeleteIcon";
 import { TableData } from "@types";
 import Link from "next/link";
 import { deleteGame } from "@lib/actions/game.actions";
 import { usePathname } from "next/navigation";
+import { AddIcon } from "@public/assets/icons/AddIcon";
+import { addGameToGroup } from "@lib/actions/group.actions";
+import { useEffect, useRef, useState } from "react";
+import { ConfirmIcon } from "@public/assets/icons/ConfirmIcon";
+
+type SelectedGame = {
+  id: string;
+  type: 'mcq' | 'open-ended';
+}
 
 
 const Table = ({
@@ -27,10 +37,19 @@ const Table = ({
       isMCQ,
       correct_answers,
       ctaFunctions,
-   } 
-}: { data: TableData }) => {
+   },
+   groups,
+   groupsFor
+}: { data: TableData; groups?: any, groupsFor: 'collections' | 'decks' }) => {
 
   const pathname = usePathname()
+
+
+  const [selectedGame, setSelectedGame] = useState<SelectedGame | undefined>(undefined) 
+  const [selectedGroupIndex, setSelectedGroupIndex] = useState<number | undefined>(undefined)
+  const [showGroups, setShowGroups] = useState(false)
+
+
 
   const handleDeleteGame = async (id: string) => {
     try {
@@ -40,8 +59,103 @@ const Table = ({
     }
   }
 
+
+  const handleAddToGroup = async (groupId: string) => {
+    try {
+      if(selectedGame){
+        await addGameToGroup(selectedGame.id, groupId, selectedGame.type, pathname)
+        //TODO: toast de succes
+      }
+    } catch (error: any) {
+      //TODO: toast
+      console.log(error.message)
+    } finally {
+      setShowGroups(false)
+    }
+  }
+
+  const handleAddClick = (gameId: string, gameType: string) => {
+    if(gameType == 'Multiple Choice' || gameType == 'Open Ended'){
+
+      setSelectedGame({
+        id: gameId,
+        type: gameType == 'Multiple Choice' ? 'mcq' : 'open-ended'
+      })
+      setShowGroups(true)
+    }
+  }
+
+
+  useEffect(() => {
+    if(selectedGroupIndex !== undefined){
+      setSelectedGroupIndex(undefined)
+    }
+  }, [selectedGame])
+  
+
+
+  const popupRef = useRef<HTMLDivElement | null>(null);
+
+  const handleDocumentClick = (event: MouseEvent) => {
+    const addCtaElements = document.querySelectorAll('.cta-add');
+    if (popupRef.current &&
+        !popupRef.current.contains(event.target as Node) &&
+        !Array.from(addCtaElements).some(element =>
+          element.contains(event.target as Node)
+        )
+    ) {
+      setShowGroups(false)
+    }
+  };
+
+  useEffect(() => {
+    if (showGroups) {
+      document.addEventListener('click', handleDocumentClick);
+    } else {
+      document.removeEventListener('click', handleDocumentClick);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleDocumentClick);
+    };
+  }, [showGroups]);
+
+
+
   return (
     <div className={isSummary ? (isMCQ ? "table -summary-mcq" :"table -summary") : "table"}>
+
+      { showGroups &&
+        <div className="table-popup nested-list nested-list-wrapper" ref={popupRef}>
+          <div className="nested-list-collections">
+            { groups && groups.length === 0 ? (
+                <span>Empty {groupsFor} list</span>
+            ) : (
+              groups.map((group: any, groupIndex: number) => (
+                <div className="nested-list">
+
+                  <div className="nested-list-header">
+                    <div className="nested-list-content" onClick={() => setSelectedGroupIndex(groupIndex)}>
+                      <span className="nested-list-content-title">{group.title}</span>
+                      <div className="list-item-date">
+                        <Image src={Clock} alt="" />
+                        <span>{group.created_at}</span>
+                      </div>
+                      { selectedGroupIndex === groupIndex &&
+                        <div className="confirm-cta" onClick={() => handleAddToGroup(group._id)}>
+                          <ConfirmIcon />
+                        </div>
+                      }
+                    </div>
+                  </div>
+                  
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      }
+
 
       <div className="table-head">
         {topics && <span>Topic</span>}
@@ -98,15 +212,26 @@ const Table = ({
 
 
           { ids && ctaFunctions &&
-              ctaFunctions.map((func => {
-                if(func == 'deleteGame'){
-                  return (
-                    <div className="cta" onClick={() => handleDeleteGame(ids[key])} id={ids[key]}>
-                      <DeleteIcon />
-                    </div>
-                  )
-                }
-              }))
+            <div className="table-element-ctas">
+              { ctaFunctions.map((func => {
+                  if(func == 'deleteGame'){
+                    return (
+                      <div className="cta" onClick={() => handleDeleteGame(ids[key])} >
+                        <DeleteIcon />
+                      </div>
+                    )
+                  }
+                  if(func == 'addGame'){
+                    //? element[1] -> game.game_type
+                    return (
+                      <div className="cta cta-add" onClick={() => handleAddClick(ids[key], element[1] as string)} >
+                        <AddIcon />
+                      </div>
+                    )
+                  }
+                }))
+              }
+            </div>
           }
 
 

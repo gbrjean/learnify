@@ -10,13 +10,13 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Accuracy from "@public/assets/images/accuracy.png"
 import BlankAnswerInput from "@components/BlankAnswerInput";
-import { Game, UserAnswer } from "@types";
+import { GroupGame, UserAnswer } from "@types";
 import { formatTimeDelta } from "@lib/utils";
 import { differenceInSeconds } from "date-fns";
 import { useMutation } from "@tanstack/react-query";
 import { checkAnswer, endGame } from "@lib/actions/game.actions";
 
-const OpenEnded = ({game}: {game: Game}) => {
+const OpenEnded = ({group}: {group: GroupGame}) => {
 
   const router = useRouter();
 
@@ -25,6 +25,7 @@ const OpenEnded = ({game}: {game: Game}) => {
   const [pickDifficulty, setPickDifficulty] = useState(false) //? ONLY FOR FLASHCARD
   const [difficulty, setDifficulty] = useState<5 | 8 | 10 | undefined>(undefined) //? ONLY FOR FLASHCARD
 
+  const [gameIndex, setGameIndex] = useState(0)
   const [questionIndex, setQuestionIndex] = useState(0)
 
   const [blankAnswer, setBlankAnswer] = useState("");
@@ -36,6 +37,11 @@ const OpenEnded = ({game}: {game: Game}) => {
 
   const timeStarted = useMemo(() => new Date(), [])
   const [now, setNow] = useState(new Date())
+
+
+  const game = useMemo(() => {
+    return group.games[gameIndex];
+  }, [gameIndex]);
 
   const currentQuestion = useMemo(() => {
     return game.questions[questionIndex];
@@ -53,11 +59,11 @@ const OpenEnded = ({game}: {game: Game}) => {
 
       let percentageSimilar: number | boolean | undefined
 
-      if(game.game_genre == 'flashcard' && difficulty !== undefined){
+      if(group.games_genre == 'flashcards' && difficulty !== undefined){
         percentageSimilar = await checkAnswer(game._id, questionIndex, updatedFilledAnswer, difficulty);
       } 
 
-      if(game.game_genre == 'quiz'){
+      if(group.games_genre == 'quizzes'){
         percentageSimilar = await checkAnswer(game._id, questionIndex, updatedFilledAnswer);
       }
 
@@ -67,7 +73,12 @@ const OpenEnded = ({game}: {game: Game}) => {
 
   const { mutate: endGameId } = useMutation({
     mutationFn: async () => {
-      const res = await endGame(game._id, answers, timeStarted)
+      const res = await endGame(
+        group._id, 
+        answers, 
+        timeStarted,
+        group.games_genre == 'quizzes' ? 'collections' : 'decks'
+      )
       return res;
     },
   });
@@ -80,7 +91,7 @@ const OpenEnded = ({game}: {game: Game}) => {
 
   const handleNext = useCallback(() => {
 
-    if(game.game_genre == 'flashcard' && difficulty === undefined){
+    if(group.games_genre == 'flashcards' && difficulty === undefined){
       return
     }
 
@@ -92,7 +103,7 @@ const OpenEnded = ({game}: {game: Game}) => {
           // });
           setAveragePercentage((prev) => (prev + percentageSimilar) / (questionIndex + 1));
 
-          if(game.game_genre == 'flashcard' && difficulty === undefined){
+          if(group.games_genre == 'flashcards' && difficulty === undefined){
             setAnswers((prevAnswers) => {
               const currentAnswer: UserAnswer = {
                 answer: updatedFilledAnswer,
@@ -115,10 +126,20 @@ const OpenEnded = ({game}: {game: Game}) => {
 
           
           if (questionIndex === game.questions.length - 1) {
-            setHasEnded(true)
-            return;
+            if (gameIndex === group.games.length - 1) {
+              setHasEnded(true)
+              return;
+            }
+            setGameIndex((gameIndex) => gameIndex + 1)
           }
+
           setQuestionIndex((prev) => prev + 1);
+
+          if(game.game_genre == 'flashcard' && difficulty !== undefined){
+            setPickDifficulty(false)
+            setDifficulty(undefined)
+          }
+          
         }
       },
       onError: (error) => {
@@ -129,16 +150,17 @@ const OpenEnded = ({game}: {game: Game}) => {
         // });
       },
     });
-  }, [checkAnswer, questionIndex, endGame, answers, game.game_genre, game.questions.length, filledAnswer]);
+  }, [checkAnswer, questionIndex, endGame, answers, group.games_genre, game.questions.length, filledAnswer, pickDifficulty, difficulty, gameIndex]);
 
 
   useEffect(() => {
     if (hasEnded) {
-      endGameId(undefined, {
-        onSuccess: (summaryId) => {
-          router.push(`/summary/${summaryId}`)
-        }
-      });
+      console.log("ENDED")
+      // endGameId(undefined, {
+      //   onSuccess: (summaryId) => {
+      //     router.push(`/summary/${summaryId}`)
+      //   }
+      // });
     }
   }, [endGameId, game.questions.length, hasEnded])
 
@@ -156,8 +178,8 @@ const OpenEnded = ({game}: {game: Game}) => {
     <section>
 
       <div className="quiz-header">
-        <span>{game.game_genre == 'quiz' ? 'Quiz' : 'Flashcard'}</span>
-        <h1>{game.topic.charAt(0).toUpperCase() + game.topic.slice(1)}</h1>
+      <span>{group.games_genre == 'quizzes' ? 'Collection' : 'Deck'}</span>
+        <h1>{group.title.charAt(0).toUpperCase() + group.title.slice(1)}</h1>
       </div>
 
       { pickDifficulty ? (
@@ -210,7 +232,7 @@ const OpenEnded = ({game}: {game: Game}) => {
       )}
 
 
-      {!pickDifficulty && <button className="btn-primary" disabled={isChecking} onClick={() => game.game_genre == 'quiz' ? handleNext() : handleNextFlashcard()}>Next question</button> }
+      {!pickDifficulty && <button className="btn-primary" disabled={isChecking} onClick={() => group.games_genre == 'quizzes' ? handleNext() : handleNextFlashcard()}>Next question</button> }
 
     </section>
   )

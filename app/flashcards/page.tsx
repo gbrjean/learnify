@@ -2,12 +2,14 @@
 
 import Table from "@components/Table"
 import { fetchGamesList } from "@lib/actions/game.actions"
+import { getGroups } from "@lib/actions/group.actions"
 import { TableData } from "@types"
 import { redirect } from "next/navigation"
 
 const Flashcards = async () => {
 
   let games
+  let groups
 
   try {
     games = await fetchGamesList('flashcard')
@@ -15,7 +17,7 @@ const Flashcards = async () => {
     redirect('/')
   }
 
-  if(!games){
+  if(games.length === 0){
     return (
       <section>
         <h1>List of Flashcards</h1>
@@ -23,6 +25,8 @@ const Flashcards = async () => {
       </section>
     )
   }
+
+  groups = await getGroups('deck', 'summary')
 
   // const tableData: TableData = {
   //   titles: ['Date created', 'Type', 'Method', 'Questions'],
@@ -45,13 +49,14 @@ const Flashcards = async () => {
     ]),
     ids: games.map(game => game._id),
     topicAsLink: true,
+    ctaFunctions: ['deleteGame', 'addGame']
   }
 
   return (
     <section>
       <h1>List of Flashcards</h1>
 
-      <Table data={tableData} />
+      <Table data={tableData} groups={groups} groupsFor={'decks'} />
 
     </section>
   )

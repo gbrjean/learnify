@@ -74,9 +74,9 @@ const Homepage = () => {
           <p>You have played a total of 84 quizzes.</p>
 
           <div className="list">
+            {/* <QuizListItem />
             <QuizListItem />
-            <QuizListItem />
-            <QuizListItem />
+            <QuizListItem /> */}
           </div>
 
         </div>

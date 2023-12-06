@@ -1,5 +1,5 @@
-import MCQ from "@components/play/MCQ"
-import OpenEnded from "@components/play/OpenEnded"
+import MCQ from "@components/play-single-game/MCQ"
+import OpenEnded from "@components/play-single-game/OpenEnded"
 import { getGame } from "@lib/actions/game.actions";
 import { getCurrentUser } from "@lib/actions/user.actions";
 import { Game } from "@types";

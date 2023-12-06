@@ -43,6 +43,14 @@ declare type Game = {
   game_mode: 'AI' | 'manual';
 }
 
+declare type GroupGame = {
+  _id: string;
+  title: string;
+  games_type: 'mcq' | 'open-ended';
+  games_genre: 'quizzes' | 'flashcards';
+  games: Game[];
+}
+
 declare type UserAnswer = {
   answer: string;
   is_correct?: boolean;

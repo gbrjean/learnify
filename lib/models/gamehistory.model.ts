@@ -2,6 +2,7 @@ import mongoose, { Schema } from "mongoose";
 
 const gameHistorySchema = new Schema({
   game_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Game' },
+  group_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
   time_started: Date,
   time_ended: { type: Date, default: Date.now },
   answers: [

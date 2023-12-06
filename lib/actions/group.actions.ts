@@ -60,7 +60,7 @@ export async function deleteGroup(id: string, path: string){
 }
 
 
-export async function getGroups(type: 'collection' | 'deck'){
+export async function getGroups(type: 'collection' | 'deck', mode?: 'summary'){
   try {
     connectToDB()
 
@@ -73,15 +73,100 @@ export async function getGroups(type: 'collection' | 'deck'){
       throw new Error("User not found")
     }
 
-    const groups = await Group.find({ user_id: user._id, type: type })
-      .populate({
-        path: 'games',
-        model: 'Game',
-        select: '_id topic game_type game_genre game_mode created_at',
-      })
-      .select('_id title games_genre created_at')
-      .lean()
-      .exec()
+    if(mode == 'summary'){
+      // const groups = await Group.find({ user_id: user._id, type: type })
+      // .select('_id title games_type created_at')
+      // .lean()
+      // .exec()
+
+      const groups = await Group.aggregate([
+        { 
+          $match: { 
+            user_id: user._id, 
+            type: type 
+          } 
+        },
+        { 
+          $project: { 
+            _id: 1,
+            title: 1,
+            games_type: 1,
+            created_at: { 
+              $dateToString: {
+                format: "%d/%m/%Y",
+                date: "$created_at",
+                timezone: "Europe/Bucharest",
+              },
+            }
+          } 
+        }
+      ]);
+      
+
+      return groups
+    }
+
+    // const groups = await Group.find({ user_id: user._id, type: type })
+    //   .populate({
+    //     path: 'games',
+    //     model: 'Game',
+    //     select: '_id topic game_type game_genre game_mode created_at',
+    //   })
+    //   .select('_id title games_type created_at')
+    //   .lean()
+    //   .exec()
+
+    const groups = await Group.aggregate([
+      {
+        $match: {
+          user_id: user._id,
+          type: type
+        }
+      },
+      {
+        $lookup: {
+          from: 'games',
+          localField: 'games',
+          foreignField: '_id',
+          as: 'games'
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          games_type: 1,
+          created_at: { 
+            $dateToString: {
+              format: "%d/%m/%Y",
+              date: "$created_at",
+              timezone: "Europe/Bucharest",
+            },
+          },
+          games: {
+            $map: {
+              input: '$games',
+              as: 'game',
+              in: {
+                _id: '$$game._id',
+                topic: '$$game.topic',
+                game_type: '$$game.game_type',
+                game_genre: '$$game.game_genre',
+                game_mode: '$$game.game_mode',
+                created_at: { 
+                  $dateToString: { 
+                    format: '%d/%m/%Y', 
+                    date: '$$game.created_at',
+                    timezone: "Europe/Bucharest",
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]);
+    
 
     return groups
 
@@ -114,6 +199,7 @@ export async function addGameToGroup(
     if (!group) {
       throw new Error('Group not found');
     }
+
 
     if (!group.games || (Array.isArray(group.games) && group.games.length === 0)) {
       group.games_type = game_type

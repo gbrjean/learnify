@@ -12,9 +12,10 @@ import Game from "@lib/models/game.model";
 import GameHistory from "@lib/models/gamehistory.model";
 import { z } from 'zod'
 import stringSimilarity from "string-similarity"
-import { UserAnswer } from "@types";
+import { UserAnswer, mcqQuestion, openEndedQuestion } from "@types";
 import Group from "@lib/models/group.model";
 import { revalidatePath } from "next/cache";
+import PopularTopics from "@lib/models/populartopics.model";
 
 
 
@@ -39,62 +40,88 @@ export async function createGame(formData: z.infer<typeof QuizWithAiValidation> 
 
     // if(isQuizAI){
 
-    //   let questions = await createQuestions(formData as z.infer<typeof QuizWithAiValidation>)
+    //   let questions: openEndedQuestion[] | mcqQuestion[] = await createQuestions(formData as z.infer<typeof QuizWithAiValidation>)
     //   const parsedData = QuizWithAiValidation.parse(formData)
 
+    //   console.log("questions:", questions)
+    //   console.log("parsed data:", parsedData)
 
-    //   const newGame = new Game({
+    //   const gameData = new Game({
     //     userId: user,
     //     gameType: parsedData.type,
     //     topic: parsedData.topic,
-    // game_genre: genre,
-    // game_mode: 'manual',
+    //     game_genre: genre,
+    //     game_mode: 'manual',
     //   })
 
-    //   const game = await newGame.save()
+    //   console.log("game: ", gameData)
 
-
-    //   if(parsedData.type == "open-ended"){
-    //     let data = questions.map((question: openEndedQuestion) => {
-    //       return {
-    //         question: question.question,
-    //         answer: question.answer,
-    //         questionType: parsedData.type,
-    //         gameId: game._id,
-    //       }
-    //     })
-
-    //     Question.insertMany(data)
-    //       .then(() => {
-    //         return game._id
-    //       })
-    //       .catch((error) => {
-    //         throw new Error("Error creating questions:", error.message);
-    //     });
-
-    //   } else if(parsedData.type == "mcq"){
+    //   try {
+    //     let gameDoc = new Game(gameData);
+    //     console.log("the doc is: ", gameDoc)
         
-    //     let data = questions.map((question: mcqQuestion) => {
-    //       let options = [question.option1, question.option2, question.option3]
-    //       options = options.sort(() => Math.random() - 0.5)
-    //       return {
-    //         question: question.question,
-    //         answer: question.answer,
-    //         options: JSON.stringify(options),
-    //         questionType: parsedData.type,
-    //         gameId: game._id,
-    //       }
-    //     })
-
-    //     Question.insertMany(data)
-    //       .then(() => {
-    //         return game._id
+    //     if(parsedData.type == "open-ended"){
+    //       let data = (questions as openEndedQuestion[]).map(question => {
+    //         return {
+    //           question: question.question,
+    //           answer: question.answer,
+    //         }
     //       })
-    //       .catch((error) => {
-    //         throw new Error("Error creating questions:", error.message);
-    //     });
 
+    //       console.log("questions data:", data)
+
+    //       data.map(question => {
+    //         gameDoc.questions.push(question);
+    //       })
+
+          
+
+    //     } else if(parsedData.type == "mcq"){
+          
+    //       let data = (questions as mcqQuestion[]).map(question  => {
+    //         let options = [question.option1, question.option2, question.option3]
+    //         options = options.sort(() => Math.random() - 0.5)
+    //         return {
+    //           question: question.question,
+    //           answer: question.answer,
+    //           options: JSON.stringify(options),
+    //         }
+    //       })
+
+    //       console.log("questions data:", data)
+
+    //       data.map(question => {
+    //         gameDoc.questions.push(question);
+    //       })
+
+    //     }
+        
+        
+    //     let game = await gameDoc.save();
+
+    //     await PopularTopics.findOneAndUpdate(
+    //       { topic: parsedData.topic },
+    //       {
+    //         $setOnInsert: { topic: parsedData.topic, count: 1 }, // Set the values on insert
+    //         $inc: { count: 1 }, // Increment the count field if the document exists
+    //       },
+    //       {
+    //         upsert: true, // Create a new document if it doesn't exist
+    //       }
+    //     );
+
+    //     user.games.push(game._id)
+    //     await user.save()
+
+    //     return game._id
+
+    //   } catch (error: any) {
+    //     console.log('Error saving game:', error);
+    //     throw new Error(`Error saving game: ${error.message}`)
     //   }
+
+
+
     // }
 
 
@@ -245,21 +272,40 @@ export async function checkAnswer(gameId: string, qIndex: number, userInput: str
 }
 
 
-export async function endGame(gameId: string, answers: UserAnswer[], timeStarted: Date){
+export async function endGame(objectId: string, answers: UserAnswer[], timeStarted: Date, historyType: 'quizzez' | 'flashcards' | 'decks' | 'collections'){
   try {
     connectToDB()
 
-    const game = await Game.findById(gameId)
+    let endedGame
 
-    if(!game){
-      throw new Error(`No game find with id ${gameId}`)
+    if(historyType == 'quizzez' || historyType == 'flashcards'){
+      const game = await Game.findById(objectId)
+  
+      if(!game){
+        throw new Error(`No game find with id ${objectId}`)
+      }
+  
+      endedGame = await GameHistory.create({
+        game_id: game._id,
+        time_started: timeStarted,
+        answers
+      })
     }
 
-    let endedGame = await GameHistory.create({
-      game_id: game._id,
-      time_started: timeStarted,
-      answers
-    })
+    if(historyType == 'collections' || historyType == 'decks'){
+      const group = await Group.findById(objectId)
+  
+      if(!group){
+        throw new Error(`No group find with id ${objectId}`)
+      }
+  
+      endedGame = await GameHistory.create({
+        group_id: group._id,
+        time_started: timeStarted,
+        answers
+      })
+    }
+
 
     return endedGame._id
     
@@ -302,20 +348,23 @@ export async function getGameOfGroup(groupId: string, type: 'collection' | 'deck
 
     connectToDB()
 
-    const game = await Group.findOne({ _id: groupId, type: type })
+    const group = await Group.findOne({ _id: groupId, type: type })
       .populate({
         path: 'games',
-        select: '_id questions game_type game_genre'
+        select: '_id questions game_mode'
       })
-      .select('games')
+      .select('title games_type games_genre games')
       .lean()
       .exec()
 
-    if (!game) {
+
+    if (!group) {
       throw new Error('Game of group not found');
     }
 
-    return game
+    console.log(group)
+
+    return group
 
   } catch (error: any) {
     console.log('Error fetching game', error)

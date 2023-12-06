@@ -71,7 +71,12 @@ const MCQ = ({game}: {game: Game}) => {
 
   const { mutate: endGameId } = useMutation({
     mutationFn: async () => {
-      const res = await endGame(game._id, answers, timeStarted)
+      const res = await endGame(
+        game._id, 
+        answers, 
+        timeStarted, 
+        game.game_genre == 'quiz' ? 'quizzez' : 'flashcards'
+      )
       return res;
     },
   });
@@ -170,13 +175,14 @@ const MCQ = ({game}: {game: Game}) => {
 
           if(game.game_genre == 'flashcard' && difficulty !== undefined){
             setPickDifficulty(false)
+            setDifficulty(undefined)
           }
 
         },
       });
 
     }
-  }, [checkCorrectAnswer, selectedAnswer, questionIndex, endGameId, answers, game.game_genre, game.questions.length])
+  }, [checkCorrectAnswer, selectedAnswer, questionIndex, endGameId, answers, game.game_genre, game.questions.length, pickDifficulty, difficulty])
 
 
   useEffect(() => {
@@ -211,11 +217,11 @@ const MCQ = ({game}: {game: Game}) => {
       { pickDifficulty ? (
         <div className="quiz-difficulty_picker">
           <span>How well did you know this question?</span>
-          <div className="quiz-difficulty_picker__actions">
-            <button className={difficulty === 5 ? "selectable selected" : "selectable"} onClick={() => setDifficulty(5)}>Not well</button>
-            <button className={difficulty === 8 ? "selectable selected" : "selectable"} onClick={() => setDifficulty(8)}>Good</button>
-            <button className={difficulty === 10 ? "selectable selected" : "selectable"} onClick={() => setDifficulty(10)}>Excellent</button>
-          </div>
+          
+            <button className={difficulty === 5 ? "btn-selectable btn-selected" : "btn-selectable"} onClick={() => setDifficulty(5)}>Not well</button>
+            <button className={difficulty === 8 ? "btn-selectable btn-selected" : "btn-selectable"} onClick={() => setDifficulty(8)}>Good</button>
+            <button className={difficulty === 10 ? "btn-selectable btn-selected" : "btn-selectable"} onClick={() => setDifficulty(10)}>Excellent</button>
+          
 
           <button className="btn-primary" disabled={isChecking} onClick={() => handleNext()}>Next question</button>
         </div>
