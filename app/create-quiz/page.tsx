@@ -3,7 +3,7 @@
 import QuizFormAI from '@components/quiz-creation/QuizFormAI'
 import QuizMCQForm from '@components/quiz-creation/QuizMCQForm'
 import QuizTypeForm from '@components/quiz-creation/QuizTypeForm'
-import '@styles/creation/creation.scss'
+import css from '@styles/creation/creation.module.scss'
 import { useEffect, useState } from 'react'
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form'
 import { z } from 'zod'
@@ -14,6 +14,8 @@ import { hasEmptyFields } from '@lib/utils'
 import QuizLoader from '@components/quiz-creation/QuizLoader'
 import { createGame } from '@lib/actions/game.actions'
 import { useRouter } from "next/navigation"
+import { toast } from 'react-toastify'
+import { useSearchParams } from 'next/navigation'
 
 type FormSchema = 
  | typeof QuizWithAiValidation
@@ -21,6 +23,9 @@ type FormSchema =
 
 
 const CreateQuiz = () => {
+
+  const searchParams = useSearchParams()
+  const topicParam = searchParams.get('topic')
 
   const FORM_STEPS = 3
 
@@ -70,18 +75,18 @@ const CreateQuiz = () => {
       if(isQuizAI !== undefined){
         const gameId = await createGame(data, isQuizAI, 'quiz')
         setFinished(true);
-        console.log(gameId)
-        // setTimeout(() => {
-        //  router.push(`/play/quiz/${gameId}`);
-        // }, 2000);
+
+        setTimeout(() => {
+         router.push(`/play/${gameId}`);
+        }, 2000);
       }
 
     } catch (error) {
       console.log(error)
       setShowLoader(false)
-      //TODO: toast
+      toast.error("Game creation failed")
     }
-    alert(JSON.stringify(data))
+
   }
 
     //? DEBUGGING
@@ -96,24 +101,33 @@ const CreateQuiz = () => {
     }, [methods.watch()])
 
 
+    useEffect(() => {
+      if(topicParam){
+        setIsQuizAI(true)
+        nextStep()
+      }
+    }, [])
+    
+
+
   
   if(showLoader){
     return <QuizLoader finished={finished} />
   }
 
   return (
-    <section className="card">
+    <section className={`card ${css.card}`}>
       <FormProvider {...methods}>
 
         { formStep === 0 &&
           <>
 
-          <div className="card-header">
+          <div className={css.card_header}>
             <h1>Quiz Creation</h1>
             <span>Choose how to create the quiz</span>
           </div>
 
-          <div className="card-ctas">
+          <div className={css.card_ctas}>
             <button 
               className="btn-primary"
               onClick={() => {
@@ -137,7 +151,7 @@ const CreateQuiz = () => {
           </>
         }
 
-        { formStep === 1 && isQuizAI && <QuizFormAI onSubmit={methods.handleSubmit(onSubmit)} />}
+        { formStep === 1 && isQuizAI && <QuizFormAI onSubmit={methods.handleSubmit(onSubmit)} topicParam={topicParam} />}
         { formStep === 1 && !isQuizAI && <QuizTypeForm nextStep={nextStep} />}
         { formStep === 2 && (
             methods.getValues("type") == "mcq"

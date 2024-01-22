@@ -6,6 +6,7 @@ import { getCurrentUser } from "./user.actions";
 import User from "@lib/models/user.model";
 import Group from "@lib/models/group.model";
 import Game from "@lib/models/game.model";
+import GameHistory from "@lib/models/gamehistory.model";
 
 
 export async function createGroup(title: string, type: 'collection' | 'deck', genre: 'quizzes' | 'flashcards', path: string) {
@@ -46,13 +47,14 @@ export async function deleteGroup(id: string, path: string){
       throw new Error('You must be logged in')
     }
     
-    const group = await Group.findById(id);
+    const group = await Group.findByIdAndDelete(id);
     if (!group) {
       throw new Error('Group not found');
     }
 
-    await Group.deleteOne(group)
     revalidatePath(path)
+
+    await GameHistory.deleteMany({ group_id: group._id })
 
   } catch (error: any) {
     throw new Error(`Can't delete the group: ${error.message}`)

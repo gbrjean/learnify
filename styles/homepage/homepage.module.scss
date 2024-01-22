@@ -20,7 +20,7 @@
 
 .card{
 
-  &-inline{
+  &_inline{
     display: flex;
     gap: 2.5rem;
     flex-direction: column;
@@ -33,12 +33,16 @@
   position: relative;
   padding: 2rem 2.5rem;
 
+  &#ra .list{
+    overflow-y: auto;
+    max-height: 34rem;
+  }
 
   @include mediaMin(xl){
-    &#ci-1{
+    &#ci_1{
       grid-column: 1 / span 12;
     }
-    &#ci-2{
+    &#ci_2{
       grid-column: 1 / span 12;
     }
     &#qm{
@@ -60,14 +64,18 @@
     &#ra{
       grid-column: 8 / span 5;
       grid-row: 5;
+
+      .list{
+        max-height: 51rem;
+      }
     }
   }
 
   @include mediaMin(xxl){
-    &#ci-1{
+    &#ci_1{
       grid-column: 1 / span 6;
     }
-    &#ci-2{
+    &#ci_2{
       grid-column: 7 / span 6;
     }
     &#qm{
@@ -98,10 +106,21 @@
     color: $color-text-75;
   }
 
-  &-img{
+  &_img{
     position: absolute;
     top: 2rem;
     right: 2.5rem;
   }
   
+}
+
+#word_cloud{
+  text{
+    font-family: $font !important;
+    transition: font-weight .25s ease;
+    &:hover{
+      cursor: pointer;
+      font-weight: 700 !important;
+    }
+  }
 }

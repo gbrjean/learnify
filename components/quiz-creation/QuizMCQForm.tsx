@@ -3,6 +3,8 @@
 import { hasEmptyFields } from "@lib/utils";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react"
 import { useFormContext, Controller, useFieldArray } from "react-hook-form"
+import { toast } from "react-toastify";
+import css from '@styles/creation/creation.module.scss'
 
 
 interface AnswerInputProps {
@@ -26,8 +28,8 @@ const AnswerInput = ({ questionIndex, answerIndex }: AnswerInputProps) => {
     answerErrors[questionIndex]?.answers[answerIndex]?.answer;
 
   return (
-    <div className="input-wrapper">
-      <span className="input-title">Answer {answerIndex+1}</span>
+    <div className={css.input_wrapper}>
+      <span className={css.input_title}>Answer {answerIndex+1}</span>
       <Controller
         name={`questions[${questionIndex}].answers[${answerIndex}].answer`}
         control={control}
@@ -75,8 +77,8 @@ const QuestionInput = forwardRef(({ questionIndex }: QuestionInputProps, ref) =>
 
   return (
     <>
-    <div className="input-wrapper">
-      <span className="input-title">Question {questionIndex+1}</span>
+    <div className={css.input_wrapper}>
+      <span className={css.input_title}>Question {questionIndex+1}</span>
       <Controller
         name={`questions[${questionIndex}].question`}
         control={control}
@@ -97,7 +99,7 @@ const QuestionInput = forwardRef(({ questionIndex }: QuestionInputProps, ref) =>
       }
     </div>
 
-    <div className="input-answers">
+    <div className={css.input_answers}>
       {answers.map((_, index) => (
         <AnswerInput
           key={`question${questionIndex}_answer${index}`}
@@ -136,7 +138,7 @@ const QuizMCQForm = ({onSubmit} : {onSubmit: () => void}) => {
       setSelectedQuestionIndex(prev => prev+1)
     } else {
       console.log("complete all fields")
-      //TODO: toast error
+      toast.error("Please complete all fields")
     }
   };
   
@@ -183,12 +185,12 @@ const QuizMCQForm = ({onSubmit} : {onSubmit: () => void}) => {
   }
 
   useEffect(() => {
-    if(selectedQuestionIndex === 0 && getValues(`questions[${selectedQuestionIndex}].answers`)){
+    if( (selectedQuestionIndex === 0 || isFinishing) && getValues(`questions[${selectedQuestionIndex}].answers`)){
       setLastAnswers(getValues(`questions[${selectedQuestionIndex}].answers`))
     } else if(getValues(`questions[${selectedQuestionIndex-1}].answers`)) {
       setLastAnswers(getValues(`questions[${selectedQuestionIndex-1}].answers`))
     }
-  }, [selectedQuestionIndex, questions])
+  }, [selectedQuestionIndex, questions, isFinishing])
   
 
   useEffect(() => {
@@ -201,7 +203,7 @@ const QuizMCQForm = ({onSubmit} : {onSubmit: () => void}) => {
   return (
     <>
 
-    <div className="card-header">
+    <div className={css.card_header}>
       <h1>Create Multiple Choice Quiz</h1>
       { !chooseAnswers 
         ? <span>Set the questions and answers</span>
@@ -220,7 +222,7 @@ const QuizMCQForm = ({onSubmit} : {onSubmit: () => void}) => {
         />
       }
         
-      <div className="card-ctas -spaced">
+      <div className={`${css.card_ctas} ${css._spaced}`}>
         <div>
           <button 
             className="btn-gray"
@@ -242,14 +244,14 @@ const QuizMCQForm = ({onSubmit} : {onSubmit: () => void}) => {
     ) : (
 
       <>
-      <div className="quiz-options">
+      <div className={`quiz-options ${css.quiz_options}`}>
         {lastAnswers && lastAnswers.map((object: any, key: number) => (
             <div 
             key={object.id}
-            className={selectedAnswer === key ? "quiz-answer card --selected" : "quiz-answer card"}
+            className={selectedAnswer === key ? `quiz-answer ${css.quiz_answer} card --selected` : `quiz-answer ${css.quiz_answer} card`}
             onClick={() => setSelectedAnswer(key)}
           >
-            <div className="quiz-answer-no">
+            <div className={`quiz-answer-no ${css.quiz_answer_no}`}>
               <span>{key+1}</span>
             </div>
             <span>{object.answer}</span>

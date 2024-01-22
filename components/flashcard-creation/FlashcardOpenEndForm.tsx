@@ -3,7 +3,8 @@
 import { hasBlankWords, hasEmptyFields } from "@lib/utils";
 import { useEffect, useState } from "react";
 import { useFormContext, Controller, useFieldArray } from "react-hook-form"
-
+import { toast } from "react-toastify";
+import css from '@styles/creation/creation.module.scss'
 
 interface AnswerInputProps {
   questionIndex: number;
@@ -25,8 +26,8 @@ const AnswerInput = ({ questionIndex, answerIndex }: AnswerInputProps) => {
     answerErrors[questionIndex]?.answers[answerIndex]?.answer;
 
   return (
-    <div className="input-wrapper">
-      <span className="input-title">Answer</span>
+    <div className={css.input_wrapper}>
+      <span className={css.input_title}>Answer</span>
       <Controller
         name={`questions[${questionIndex}].answers[${answerIndex}].answer`}
         control={control}
@@ -70,8 +71,8 @@ const QuestionInput = ({ questionIndex }: QuestionInputProps) => {
 
   return (
     <>
-    <div className="input-wrapper">
-      <span className="input-title">Question {questionIndex+1}</span>
+    <div className={css.input_wrapper}>
+      <span className={css.input_title}>Question {questionIndex+1}</span>
       <Controller
         name={`questions[${questionIndex}].question`}
         control={control}
@@ -92,7 +93,7 @@ const QuestionInput = ({ questionIndex }: QuestionInputProps) => {
       }
     </div>
 
-    <div className="input-answers">
+    <div className={css.input_answers}>
       {answers.map((_, index) => (
         <AnswerInput
           key={`question${questionIndex}_answer${index}`}
@@ -131,17 +132,17 @@ const FlashcardOpenEndForm = ({onSubmit} : {onSubmit: () => void}) => {
     setCheckFlag(prev => !prev);
   }
 
-  const handleAddQuestion = () => {
-    if(Object.keys(formState.errors).length === 0 
-        && !hasEmptyFields(getValues())
-    ){
-      checkBlankWords()
+  // const handleAddQuestion = () => {
+  //   if(Object.keys(formState.errors).length === 0 
+  //       && !hasEmptyFields(getValues())
+  //   ){
+  //     checkBlankWords()
 
-    } else {
-      console.log("complete all fields")
-      //TODO: toast error
-    }
-  };
+  //   } else {
+  //     console.log("complete all fields")
+  //     toast.error("Please complete all fields")
+  //   }
+  // };
 
   const handleFinish = () => {
     setIsFinishing(true)
@@ -164,7 +165,6 @@ const FlashcardOpenEndForm = ({onSubmit} : {onSubmit: () => void}) => {
 
   
   useEffect(() => {
-    // removeQuestion(0)
     appendQuestion({ question: '', answers: [{ answer: '' }], correct_answer: 0 });
   }, [])
 
@@ -172,28 +172,21 @@ const FlashcardOpenEndForm = ({onSubmit} : {onSubmit: () => void}) => {
   return (
     <>
 
-    <div className="card-header">
+    <div className={css.card_header}>
       <h1>Create Open Ended Flashcard</h1>
       <span>Set the questions and answers</span>
     </div>
 
     { questions[selectedQuestionIndex] &&       
       <QuestionInput
-  
         key={`questionInput_${selectedQuestionIndex}`}
         questionIndex={selectedQuestionIndex}
       />
     }
     
     
-    <div className="card-ctas -spaced">
+    <div className={`${css.card_ctas} ${css._spaced}`}>
       <div>
-        <button 
-          className="btn-blue"
-          onClick={handleAddQuestion}
-        >
-          Next question
-        </button>
       </div>
 
       <button className="btn-primary" onClick={handleFinish}>Finish</button>

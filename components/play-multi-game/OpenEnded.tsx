@@ -2,7 +2,7 @@
 
 import { TimerIcon } from "@public/assets/icons/TimerIcon"
 
-import '@styles/quiz/quiz.scss'
+import css from '@styles/quiz/quiz.module.scss'
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,7 @@ import { formatTimeDelta } from "@lib/utils";
 import { differenceInSeconds } from "date-fns";
 import { useMutation } from "@tanstack/react-query";
 import { checkAnswer, endGame } from "@lib/actions/game.actions";
+import { toast } from "react-toastify";
 
 const OpenEnded = ({group}: {group: GroupGame}) => {
 
@@ -24,6 +25,9 @@ const OpenEnded = ({group}: {group: GroupGame}) => {
 
   const [pickDifficulty, setPickDifficulty] = useState(false) //? ONLY FOR FLASHCARD
   const [difficulty, setDifficulty] = useState<5 | 8 | 10 | undefined>(undefined) //? ONLY FOR FLASHCARD
+
+  const [totalQuestionIndex, setTotalQuestionIndex] = useState(0)
+  const [totalQuestionsCount, setTotalQuestionsCount] = useState(0)
 
   const [gameIndex, setGameIndex] = useState(0)
   const [questionIndex, setQuestionIndex] = useState(0)
@@ -39,13 +43,42 @@ const OpenEnded = ({group}: {group: GroupGame}) => {
   const [now, setNow] = useState(new Date())
 
 
+  useEffect(() => {
+    group.games.forEach(game => setTotalQuestionsCount((prev) => prev + game.questions.length) )
+  }, [])
+
+
   const game = useMemo(() => {
     return group.games[gameIndex];
   }, [gameIndex]);
 
   const currentQuestion = useMemo(() => {
     return game.questions[questionIndex];
-  }, [questionIndex]);
+  }, [questionIndex, game]);
+
+
+  useEffect(() => {
+    if(group.games_genre == 'quizzes'){
+      setQuestionIndex(0)
+    }
+  }, [gameIndex])
+
+  // useEffect(() => {
+  //   console.log(group)
+  // }, [group])
+
+  // useEffect(() => {
+  //   console.log(game)
+  // }, [game])
+
+  // useEffect(() => {
+  //   console.log(currentQuestion)
+  // }, [currentQuestion])
+
+  // useEffect(() => {
+  //   console.log(questionIndex)
+  // }, [questionIndex])
+  
 
   
   const { mutate: checkCorrectAnswer, isPending: isChecking } = useMutation({
@@ -92,18 +125,19 @@ const OpenEnded = ({group}: {group: GroupGame}) => {
   const handleNext = useCallback(() => {
 
     if(group.games_genre == 'flashcards' && difficulty === undefined){
+      toast.info('Please select an option')
       return
     }
 
     checkCorrectAnswer(undefined, {
       onSuccess: ({percentageSimilar, updatedFilledAnswer}) => {
         if (typeof percentageSimilar === "number") {
-          // toast({
-          //   title: `Your answer is ${percentageSimilar}% similar to the correct answer`,
-          // });
-          setAveragePercentage((prev) => (prev + percentageSimilar) / (questionIndex + 1));
 
-          if(group.games_genre == 'flashcards' && difficulty === undefined){
+          toast.info(`Your answer is ${percentageSimilar}% similar to the correct answer`)
+
+          setAveragePercentage((prev) => Math.round( (prev + percentageSimilar) / (totalQuestionIndex + 1) ));
+
+          if(group.games_genre == 'flashcards' && difficulty !== undefined){
             setAnswers((prevAnswers) => {
               const currentAnswer: UserAnswer = {
                 answer: updatedFilledAnswer,
@@ -130,12 +164,18 @@ const OpenEnded = ({group}: {group: GroupGame}) => {
               setHasEnded(true)
               return;
             }
+            if(group.games_genre == 'quizzes'){
+              setQuestionIndex(0)
+            }
             setGameIndex((gameIndex) => gameIndex + 1)
           }
 
-          setQuestionIndex((prev) => prev + 1);
+          if(group.games_genre == 'quizzes' && questionIndex > game.questions.length - 1) {
+            setQuestionIndex((prev) => prev + 1);
+          }
+          setTotalQuestionIndex((prev) => prev + 1)
 
-          if(game.game_genre == 'flashcard' && difficulty !== undefined){
+          if(group.games_genre == 'flashcards' && difficulty !== undefined){
             setPickDifficulty(false)
             setDifficulty(undefined)
           }
@@ -144,10 +184,7 @@ const OpenEnded = ({group}: {group: GroupGame}) => {
       },
       onError: (error) => {
         console.error(error);
-        // toast({
-        //   title: "Something went wrong",
-        //   variant: "destructive",
-        // });
+        toast.error("Something went wrong")
       },
     });
   }, [checkAnswer, questionIndex, endGame, answers, group.games_genre, game.questions.length, filledAnswer, pickDifficulty, difficulty, gameIndex]);
@@ -155,12 +192,11 @@ const OpenEnded = ({group}: {group: GroupGame}) => {
 
   useEffect(() => {
     if (hasEnded) {
-      console.log("ENDED")
-      // endGameId(undefined, {
-      //   onSuccess: (summaryId) => {
-      //     router.push(`/summary/${summaryId}`)
-      //   }
-      // });
+      endGameId(undefined, {
+        onSuccess: (summaryId) => {
+          router.push(`/summary/${summaryId}`)
+        }
+      });
     }
   }, [endGameId, game.questions.length, hasEnded])
 
@@ -175,61 +211,61 @@ const OpenEnded = ({group}: {group: GroupGame}) => {
 
 
   return (
-    <section>
+    <section className={css.section}>
 
-      <div className="quiz-header">
+      <div className={css.quiz_header}>
       <span>{group.games_genre == 'quizzes' ? 'Collection' : 'Deck'}</span>
         <h1>{group.title.charAt(0).toUpperCase() + group.title.slice(1)}</h1>
       </div>
 
-      { pickDifficulty ? (
-        <div className="quiz-difficulty_picker">
-          <span>How well did you know this question?</span>
-          
-            <button className={difficulty === 5 ? "btn-selectable btn-selected" : "btn-selectable"} onClick={() => setDifficulty(5)}>Not well</button>
-            <button className={difficulty === 8 ? "btn-selectable btn-selected" : "btn-selectable"} onClick={() => setDifficulty(8)}>Good</button>
-            <button className={difficulty === 10 ? "btn-selectable btn-selected" : "btn-selectable"} onClick={() => setDifficulty(10)}>Excellent</button>
-          
+      { pickDifficulty &&
+        <div className={css.quiz_difficulty_picker_wrapper}>
+          <div className={css.quiz_difficulty_picker}>
+            <span>How well did you know this question?</span>
+            
+              <button className={difficulty === 5 ? "btn-selectable btn-selected" : "btn-selectable"} onClick={() => setDifficulty(5)}>Not well</button>
+              <button className={difficulty === 8 ? "btn-selectable btn-selected" : "btn-selectable"} onClick={() => setDifficulty(8)}>Good</button>
+              <button className={difficulty === 10 ? "btn-selectable btn-selected" : "btn-selectable"} onClick={() => setDifficulty(10)}>Excellent</button>
+            
 
-          <button className="btn-primary" disabled={isChecking} onClick={() => handleNext()}>Next question</button>
-        </div>
-      ) : (
-        <>
-        <div className="quiz-status">
-          <div className="quiz-timer">
-            <TimerIcon />
-            <span>{formatTimeDelta(differenceInSeconds(now, timeStarted))}</span>
+            <button className="btn-primary" disabled={isChecking} onClick={() => handleNext()}>Next question</button>
           </div>
+        </div>
+      }
 
-          <div className="quiz-stats card">
-            <div className="-accuracy">
-              <Image src={Accuracy} width={38} height={38} alt="" />
-              <span>{averagePercentage} <span>%</span> </span>
-            </div>
+      <div className={css.quiz_status}>
+        <div className={css.quiz_timer}>
+          <TimerIcon />
+          <span>{formatTimeDelta(differenceInSeconds(now, timeStarted))}</span>
+        </div>
+
+        <div className={`${css.quiz_stats} card`}>
+          <div className={css._accuracy}>
+            <Image src={Accuracy} width={38} height={38} alt="" />
+            <span>{averagePercentage} <span>%</span> </span>
           </div>
-
         </div>
 
-        <div className="quiz-question card">
-          <div className="quiz-question-no">
-            <span>{questionIndex + 1}</span>
-            <span>{game.questions.length}</span>
-          </div>
+      </div>
 
-          <p>{currentQuestion?.question}</p>
+      <div className={`${css.quiz_question} card`}>
+        <div className={css.quiz_question_no}>
+          <span>{totalQuestionIndex + 1}</span>
+          <span>{totalQuestionsCount}</span>
         </div>
 
-        <div className="quiz-options">
+        <p>{currentQuestion?.question}</p>
+      </div>
 
-          <BlankAnswerInput 
-            setBlankAnswer={setBlankAnswer}
-            answer={currentQuestion.answer}
-            mode={game.game_mode}
-          />
+      <div className="quiz-options">
 
-        </div>
-        </>
-      )}
+        <BlankAnswerInput 
+          setBlankAnswer={setBlankAnswer}
+          answer={currentQuestion.answer}
+          mode={game.game_mode}
+        />
+
+      </div>
 
 
       {!pickDifficulty && <button className="btn-primary" disabled={isChecking} onClick={() => group.games_genre == 'quizzes' ? handleNext() : handleNextFlashcard()}>Next question</button> }

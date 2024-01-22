@@ -1,144 +1,28 @@
-"use client"
+import Profile from "@components/Profile";
+import { getCurrentUser, getUserProfile } from "@lib/actions/user.actions";
+import { UserProfile } from "@types";
+import { redirect } from "next/navigation";
 
-import '@styles/profile/profile.scss'
 
-import { signOut } from "next-auth/react"
+const ProfilePage = async () => {
 
-const Profile = () => {
+  const session = await getCurrentUser()
+  if(!session?.user) return null;
+
+  let profile: UserProfile | null
+
+  try {
+    profile = await getUserProfile() as UserProfile | null
+    console.log(profile)
+  } catch (error) {
+    redirect('/')
+  }
+  
+  if(!profile) return null;
+
   return (
-    <section>
-      <div className="cta-header">
-        <h1>Profile Statistics</h1>
-        <button className="btn-primary" onClick={() => signOut({ callbackUrl: '/login' })}>Sign out</button>
-      </div>
-
-      <div className="wrapper">
-
-        <div className="card">
-          <span className='card-title'>Practiced quizzes</span>
-          <p>View statistics for quizzes</p>
-
-          <div className="stats"> 
-          {/* // GRID cu grid-row de la Average TT */}
-            <div>
-              <span className="stats-title">Average accuracy</span>
-              <span className='stats-value'>67.76%</span>
-            </div>
-            <div>
-              <span className="stats-title">Attempts</span>
-              <span className='stats-value'>456</span>
-            </div>
-            <div>
-              <span className="stats-title">Average time taken</span>
-              <span className='stats-value'>56s</span>
-            </div>
-            <div>
-              <span className="stats-title">Best time taken</span>
-              <span className='stats-value'>10s</span>
-            </div>
-            <div>
-              <span className="stats-title">Worst time taken</span>
-              <span className='stats-value'>3min 52s</span>
-            </div>
-          </div>
-
-        </div>
-
-        <div className="card">
-          <span className='card-title'>Practiced flashcards</span>
-          <p>View statistics for flashcards</p>
-
-          <div className="stats --normal-grid">
-            <div>
-              <span className="stats-title">Average accuracy</span>
-              <span className='stats-value'>67.76%</span>
-            </div>
-            <div>
-              <span className="stats-title">Attempts</span>
-              <span className='stats-value'>456</span>
-            </div>
-            <div>
-              <span className="stats-title">Average proficiency</span>
-              <span className='stats-value'>Good</span>
-            </div>
-            <div>
-              <span className="stats-title">Average time taken</span>
-              <span className='stats-value'>56s</span>
-            </div>
-            <div>
-              <span className="stats-title">Best time taken</span>
-              <span className='stats-value'>10s</span>
-            </div>
-            <div>
-              <span className="stats-title">Worst time taken</span>
-              <span className='stats-value'>3min 52s</span>
-            </div>
-          </div>
-
-        </div>
-
-        <div className="card">
-          <span className='card-title'>Practiced collections</span>
-          <p>View statistics for collections</p>
-
-          <div className="stats">
-            <div>
-              <span className="stats-title">Average accuracy</span>
-              <span className='stats-value'>67.76%</span>
-            </div>
-            <div>
-              <span className="stats-title">Attempts</span>
-              <span className='stats-value'>456</span>
-            </div>
-            <div>
-              <span className="stats-title">Average time taken</span>
-              <span className='stats-value'>56s</span>
-            </div>
-            <div>
-              <span className="stats-title">Best time taken</span>
-              <span className='stats-value'>10s</span>
-            </div>
-            <div>
-              <span className="stats-title">Worst time taken</span>
-              <span className='stats-value'>3min 52s</span>
-            </div>
-          </div>
-
-        </div>
-
-        <div className="card">
-          <span className='card-title'>Practiced decks</span>
-          <p>View statistics for decks</p>
-
-          <div className="stats">
-            <div>
-              <span className="stats-title">Average accuracy</span>
-              <span className='stats-value'>67.76%</span>
-            </div>
-            <div>
-              <span className="stats-title">Attempts</span>
-              <span className='stats-value'>456</span>
-            </div>
-            <div>
-              <span className="stats-title">Average time taken</span>
-              <span className='stats-value'>56s</span>
-            </div>
-            <div>
-              <span className="stats-title">Best time taken</span>
-              <span className='stats-value'>10s</span>
-            </div>
-            <div>
-              <span className="stats-title">Worst time taken</span>
-              <span className='stats-value'>3min 52s</span>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>
+    <Profile data={profile} />
   )
 }
 
-export default Profile
+export default ProfilePage

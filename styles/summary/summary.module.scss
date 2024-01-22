@@ -1,11 +1,7 @@
 @import '../vars';
 @import '../breakpoints';
 
-h2{
-  font-size: 2.2rem;
-}
-
-.cta-header{
+.cta_header{
   @include mediaMax(md){
     flex-direction: column;
     align-items: initial;
@@ -21,11 +17,16 @@ h2{
   display: flex;
   flex-direction: column;
   gap: 2rem;
+
+  h2{
+    font-size: 2.2rem;
+  }
+
 }
 
 .card{
   
-  &-group{
+  &_group{
     gap: 2rem;
     display: flex;
     flex-direction: column;
@@ -65,7 +66,7 @@ h2{
 }
 
 #results{
-  .card-content{
+  .card_content{
     width: fit-content;
     margin: 1rem auto 3rem auto;
     display: flex;

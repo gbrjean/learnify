@@ -4,6 +4,7 @@ import NestedList from "@components/NestedList"
 import { createGroup } from "@lib/actions/group.actions"
 import { useEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
+import { toast } from "react-toastify"
 
 
 const Collections = ({groups} : {groups: any}) => {
@@ -19,10 +20,11 @@ const Collections = ({groups} : {groups: any}) => {
       if(inputRef.current && inputRef.current.value.trim() !== ''){
         await createGroup(inputRef.current.value, 'collection', 'quizzes', pathname)
       } else {
-        //TODO: toast
+        toast.error("Please check the input")
       }
     } catch (error: any) {
       console.log(error.message)
+      toast.error("Couldn't create the collection")
     } finally {
       setPopup(false)
       if(inputRef.current && inputRef.current.value){
@@ -66,7 +68,7 @@ const Collections = ({groups} : {groups: any}) => {
 
         { groups && groups.length === 0 
             ? <span>Empty collections list</span>
-            : groups.map((group: any) => <NestedList group={group} /> )
+            : groups.map((group: any) => <NestedList group={group} groupType='collection' /> )
 
         }
         

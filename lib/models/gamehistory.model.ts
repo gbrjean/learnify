@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 const gameHistorySchema = new Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   game_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Game' },
   group_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Group' },
   time_started: Date,
@@ -15,7 +16,7 @@ const gameHistorySchema = new Schema({
   ],
   history_type: {
     type: String,
-    enum: ['quizzez', 'flashcards', 'decks', 'collections'],
+    enum: ['quizzes', 'flashcards', 'decks', 'collections'],
   },
 });
 

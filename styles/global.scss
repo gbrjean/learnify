@@ -312,6 +312,7 @@ header{
     right: 2rem;
 
     &-popup{
+      z-index: 99;
       position: absolute;
       top: 3rem;
       right: 0;
@@ -319,7 +320,7 @@ header{
       font-weight: 400;
       background: $color-variant;
       color: $color-text;
-      min-width: min(100%, 50rem);
+      width: clamp(20rem, 40vw, 50rem);
       padding: 1.5rem;
       border-radius: 20px;
     }
@@ -382,6 +383,10 @@ header{
 
     @include mediaMax(lg){
       display: none;
+    }
+
+    &-spaced_title{
+      margin-left: calc(2.5rem + 1.5rem);
     }
 
   }
@@ -451,6 +456,9 @@ header{
     }
 
     &-topic{
+      display: flex;
+      align-items: center;
+      
       a{
         font-weight: 600;
         color: $color-primary;
@@ -459,17 +467,23 @@ header{
           color: $color-secondary;
         }
       }
+
+      &-title__spaced{
+        margin-left: 1.5rem;
+      }
     }
 
     &-result{
-      display: flex;
-      gap: 2.5rem;
-      
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      width: fit-content;
+
       div{
-        display: flex;
-        flex-direction: row !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        width: fit-content;
         align-items: center;
-        gap: 1.5rem;
+
         span{
           display: block !important;
           font-size: 1.8rem;
@@ -483,6 +497,7 @@ header{
         &:last-child{
           span{
             color: #F55B64 !important;
+            text-align: right;
           }
         }
       }
@@ -675,6 +690,27 @@ header{
     }
   }
 
+  &-actions{
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .cta:first-child svg{
+
+      path{
+        fill: $color-secondary-2;
+        transition: fill 0.2s ease;
+      }
+    
+      &:hover{
+        path{
+          fill: $color-secondary;
+        }
+      }
+      
+    }
+  }
+
 }
 
 .quiz{
@@ -747,4 +783,27 @@ header{
 
   }
 
+}
+
+
+.loader {
+  margin: 4rem auto 0 auto;
+  border: 8px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 8px solid $color-secondary-2;
+  width: 60px;
+  height: 60px;
+  -webkit-animation: spin 1.5s linear infinite; /* Safari */
+  animation: spin 1.5s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

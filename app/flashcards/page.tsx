@@ -17,6 +17,8 @@ const Flashcards = async () => {
     redirect('/')
   }
 
+  if(!games) return null;
+
   if(games.length === 0){
     return (
       <section>
@@ -26,21 +28,19 @@ const Flashcards = async () => {
     )
   }
 
-  groups = await getGroups('deck', 'summary')
+  try {
+    groups = await getGroups('deck', 'summary')
+  } catch (error) {}
 
-  // const tableData: TableData = {
-  //   titles: ['Date created', 'Type', 'Method', 'Questions'],
-  //   topics: ['HTML flexbox property', 'HTML flexbox property'],
-  //   elements: [
-  //     ['02/10/2023', 'Multiple Choice', 'Yourself', 5],
-  //     ['02/10/2023', 'Multiple Choice', 'Yourself', 5]
-  //   ],
-  //   ids: ['sd1sdads', 'sadyg1sda'],
-  // }
 
   const tableData: TableData = {
     titles: ['Date created', 'Type', 'Method', 'Questions'],
     topics: games.map(game => game.topic),
+    topic_icons: games.map(game => 
+      game.game_genre == 'flashcard'
+        ? 'flashcard'
+        : (game.game_type == 'mcq' ? 'multiple' : 'open')
+    ),
     elements: games.map(game => [
       game.created_at, 
       game.game_type == 'mcq' ? 'Multiple Choice' : 'Open Ended', 
@@ -56,7 +56,7 @@ const Flashcards = async () => {
     <section>
       <h1>List of Flashcards</h1>
 
-      <Table data={tableData} groups={groups} groupsFor={'decks'} />
+      <Table data={tableData} groups={groups} groupsFor={'decks'} pageRedirectFor="play" />
 
     </section>
   )

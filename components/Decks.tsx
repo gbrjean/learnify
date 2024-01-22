@@ -4,6 +4,7 @@ import NestedList from "@components/NestedList"
 import { createGroup } from "@lib/actions/group.actions"
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation"
+import { toast } from "react-toastify";
 
 
 const Decks = ({groups} : {groups: any}) => {
@@ -19,10 +20,11 @@ const Decks = ({groups} : {groups: any}) => {
       if(inputRef.current && inputRef.current.value.trim() !== ''){
         await createGroup(inputRef.current.value, 'deck', 'flashcards', pathname)
       } else {
-        //TODO: toast
+        toast.error("Please check the input")
       }
     } catch (error: any) {
       console.log(error.message)
+      toast.error("Couldn't create the deck")
     } finally {
       setPopup(false)
       if(inputRef.current && inputRef.current.value){
@@ -67,7 +69,7 @@ const Decks = ({groups} : {groups: any}) => {
 
         { groups && groups.length === 0 
             ? <span>Empty decks list</span>
-            : groups.map((group: any) => <NestedList group={group} /> )
+            : groups.map((group: any) => <NestedList group={group} groupType='deck' /> )
 
         }
 

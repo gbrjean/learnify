@@ -5,6 +5,9 @@ import Check from "@public/assets/images/check-answer.png"
 import Cross from "@public/assets/images/cross-answer.png"
 import Accuracy from "@public/assets/images/accuracy.png"
 import Clock from "@public/assets/images/clock-white.png"
+import Multiple from "@public/assets/images/MultipleQuiz.png"
+import Open from "@public/assets/images/OpenQuiz.png"
+import Flashcard from "@public/assets/images/Flashcard.png"
 import { DeleteIcon } from "@public/assets/icons/DeleteIcon";
 import { TableData } from "@types";
 import Link from "next/link";
@@ -14,6 +17,7 @@ import { AddIcon } from "@public/assets/icons/AddIcon";
 import { addGameToGroup } from "@lib/actions/group.actions";
 import { useEffect, useRef, useState } from "react";
 import { ConfirmIcon } from "@public/assets/icons/ConfirmIcon";
+import { toast } from "react-toastify";
 
 type SelectedGame = {
   id: string;
@@ -25,10 +29,10 @@ const Table = ({
    data: { 
       titles, 
       topics, 
+      topic_icons,
       topicAsLink,
       elements, 
       isResult, 
-      isAccuracy, 
       checks, 
       crosses, 
       accuracies,
@@ -39,8 +43,14 @@ const Table = ({
       ctaFunctions,
    },
    groups,
-   groupsFor
-}: { data: TableData; groups?: any, groupsFor: 'collections' | 'decks' }) => {
+   groupsFor,
+   pageRedirectFor,
+}: { 
+  data: TableData; 
+  groups?: any, 
+  groupsFor?: 'collections' | 'decks', 
+  pageRedirectFor?: 'play' | 'summary' 
+}) => {
 
   const pathname = usePathname()
 
@@ -56,6 +66,7 @@ const Table = ({
       await deleteGame(id, pathname)
     } catch (error: any) {
       console.log(`Error deleting game: ${error.message}`)
+      toast.error('Error deleting the game')
     }
   }
 
@@ -64,11 +75,11 @@ const Table = ({
     try {
       if(selectedGame){
         await addGameToGroup(selectedGame.id, groupId, selectedGame.type, pathname)
-        //TODO: toast de succes
+        toast.success("Game added successfully")
       }
     } catch (error: any) {
-      //TODO: toast
       console.log(error.message)
+      toast.error(error.message)
     } finally {
       setShowGroups(false)
     }
@@ -158,7 +169,7 @@ const Table = ({
 
 
       <div className="table-head">
-        {topics && <span>Topic</span>}
+        {topics && <span className="table-head-spaced_title">Topic</span>}
         {isSummary && <span>No.</span>}
         {titles.map(title => <span>{title}</span>)}
         {isResult && <span>Result</span>}
@@ -172,8 +183,17 @@ const Table = ({
             <div>
               <span>Topic</span>
               <div className="table-element-topic">
-                { topicAsLink && ids
-                    ? <Link href={`/play/${ids[key]}`} className='table-element-topic-title'>{topics[key]}</Link>
+                { topicAsLink && ids && pageRedirectFor && topic_icons
+                    ? (
+                        <>
+                        <Image src={
+                          topic_icons[key] == 'flashcard'
+                            ? Flashcard 
+                            : (topic_icons[key] == 'multiple' ? Multiple : Open)
+                        } alt="" />
+                        <Link href={pageRedirectFor == 'play' ? `/play/${ids[key]}` : `/summary/${ids[key]}`} className='table-element-topic-title__spaced'>{topics[key]}</Link>
+                        </>
+                      )
                     : <span className='table-element-topic-title'>{topics[key]}</span>
                 }
               </div>
@@ -234,7 +254,35 @@ const Table = ({
             </div>
           }
 
+          
+          { isResult && checks && crosses && accuracies &&
+            <div>
+              <span>Result</span>
 
+              {checks[key] !== null && (
+                <div className="table-element-result">
+                  <div>
+                    <Image src={Check} alt="" />
+                    <span>{checks[key]}</span>
+                  </div>
+                  <div>
+                    <span>{crosses[key]}</span>
+                    <Image src={Cross} alt="" />
+                  </div>
+                </div>
+              )}
+
+              {accuracies[key] !== null && (
+                <div className="table-element-accuracy">
+                  <Image src={Accuracy} alt="" />
+                  <span>{accuracies[key]} %</span>
+                </div>
+              )}
+
+            </div>
+          }
+
+{/* 
           { isResult &&
             <div>
               <span>Result</span>
@@ -259,7 +307,7 @@ const Table = ({
               )}
 
             </div>
-          }
+          } */}
 
         </div>
 

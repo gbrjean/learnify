@@ -1,4 +1,5 @@
 import { useFormContext, Controller } from "react-hook-form"
+import css from'@styles/creation/creation.module.scss'
 
 type Props = {
   nextStep: () => void;
@@ -11,13 +12,13 @@ const FlashcardTypeForm = ({nextStep} : Props) => {
   return (
     <>
 
-    <div className="card-header">
+    <div className={css.card_header}>
       <h1>Create Flashcard</h1>
       <span>Choose a topic</span>
     </div>
 
-    <div className="input-wrapper">
-      <span className="input-title">Topic</span>
+    <div className={css.input_wrapper}>
+      <span className={css.input_title}>Topic</span>
       <Controller
         name="topic"
         control={control}
@@ -35,7 +36,7 @@ const FlashcardTypeForm = ({nextStep} : Props) => {
       }
     </div>
     
-    <div className="card-ctas">
+    <div className={css.card_ctas}>
       <button 
         className={getValues("type") == 'mcq' ? "btn-active" : "btn-gray-full"}
         onClick={() => setValue("type", "mcq")}

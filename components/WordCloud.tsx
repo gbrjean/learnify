@@ -2,36 +2,52 @@
 
 import D3WordCloud from "react-d3-cloud"
 import { useRouter } from "next/navigation"
+import { PopularTopic } from "@types"
+import { useEffect, useMemo, useState } from "react"
+import css from '@styles/homepage/homepage.module.scss'
 
-const data = [
-  {
-    text: "Blender",
-    value: 3,
-  },
-  {
-    text: "Web dev",
-    value: 10,
-  },
-  {
-    text: "Figma",
-    value: 4,
-  },
-  {
-    text: "NextJS",
-    value: 7,
-  }
-]
 
-const fontSizeMapper = (word: { value: number }) => {
-  return Math.log2(word.value) * 5 + 16
-}
 
-const WordCloud = () => {
+const WordCloud = ({topics} : {topics: PopularTopic[] | null}) => {
 
   const router = useRouter()
 
+  if(!topics || topics.length === 0){
+    return
+  }
+
+  const [baseFontSize, setBaseFontSize] = useState(window.innerWidth > 1200 ? 16 : 32);
+
+  const data: {text: string; value: number}[] = useMemo(() => {
+    const processedData: any[] = topics.map(el => {
+      return {
+        text: el.topic,
+        value: el.count
+      }
+    })
+    return processedData
+  }, [topics]);
+
+  const fontSizeMapper = (word: { value: number }) => {
+    return Math.log2(word.value) * 5 + baseFontSize
+  }
+
+
+  useEffect(() => {
+    const handleResize = () => {
+      setBaseFontSize(window.innerWidth > 1200 ? 16 : 32);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
+
   return (
-    <>
+    <div id={css.word_cloud}>
       <D3WordCloud
         data={data}
         height={500}
@@ -40,11 +56,11 @@ const WordCloud = () => {
         padding={10}
         fill={"#5E7CE2"}
         onWordClick={(e, d) => {
-          console.log("Text is " + d.text)
-          // router.push("/quiz?topic=" + d.text);
+          router.push("/create-quiz?topic=" + d.text);
         }}
+        
       />
-    </>
+    </div>
   )
 }
 

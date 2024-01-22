@@ -5,6 +5,11 @@ import Image from "next/image"
 import Clock from "@public/assets/images/clock-white.png"
 import { DeleteIcon } from "@public/assets/icons/DeleteIcon"
 import QuizListItem from "@components/QuizListItem"
+import { deleteGroup } from "@lib/actions/group.actions"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
+import { Play } from "@public/assets/icons/Play"
+import { toast } from "react-toastify"
 
 const NestedList = ({
   group: {
@@ -12,10 +17,21 @@ const NestedList = ({
     title,
     created_at,
     games
-  }
-}: {group: any}) => {
+  },
+  groupType,
+}: {group: any; groupType?: 'collection' | 'deck'}) => {
+
+  const pathname = usePathname()
 
   const [open, setOpen] = useState(false)
+
+  const handleDeleteGroup = async () => {
+    try {
+      await deleteGroup(_id, pathname)
+    } catch (error: any) {
+      toast.error("Couldn't delete the group")
+    }
+  }
 
   return (
     <div className="nested-list">
@@ -29,8 +45,15 @@ const NestedList = ({
           </div>
         </div>
 
-        <div className="list-item-action cta" onClick={() => {}}>
-          <DeleteIcon />
+        <div className="nested-list-actions">
+          { groupType && games && games.length !== 0 &&   
+            <Link href={`/play/${groupType}/${_id}`} className="cta">
+              <Play />
+            </Link>
+          }
+          <div className="cta" onClick={() => handleDeleteGroup()}>
+            <DeleteIcon />
+          </div>
         </div>
       </div>
       
@@ -40,7 +63,7 @@ const NestedList = ({
           { games && games.length === 0 ? (
               <span>The list is empty</span>
           ) : (
-            games.map( (game: any) => <QuizListItem game={game} groupId={_id} /> )
+            games.map( (game: any) => <QuizListItem data={game} groupId={_id} /> )
           )}
           
           

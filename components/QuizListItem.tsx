@@ -9,11 +9,15 @@ import Clock from "@public/assets/images/clock-white.png"
 import { DeleteIcon } from '@public/assets/icons/DeleteIcon'
 import { deleteGameFromGroup } from '@lib/actions/group.actions'
 import { usePathname } from "next/navigation";
+import { toast } from 'react-toastify'
+import { deleteGameHistory } from '@lib/actions/game.actions'
 
 
 const QuizListItem = ({
-  game: {
+  data: {
     _id,
+    play_id,
+    history_type,
     topic,
     game_type,
     game_genre,
@@ -21,25 +25,56 @@ const QuizListItem = ({
     created_at,
   },
   groupId,
-}: {game: any, groupId: string}) => {
+}: {data: any, groupId?: string}) => {
 
   const pathname = usePathname()
 
   const handleDeleteFromGroup = async () => {
     try {
-      await deleteGameFromGroup(_id, groupId, pathname)
+      if(groupId){
+        await deleteGameFromGroup(_id, groupId, pathname)
+      }
     } catch (error: any) {
       console.log(`Error deleting game: ${error.message}`)
+      toast.error("Couldn't delete the game from the group")
+    }
+  }
+
+  const handleDeleteFromGameHistory = async () => {
+    try {
+      await deleteGameHistory(_id, pathname)
+    } catch (error: any) {
+      console.log(`Error deleting activity: ${error.message}`)
+      toast.error("Couldn't delete the activity")
     }
   }
   
 
   return (
     <div className="list-item">
-      <Image src={game_genre == 'flashcard' ? Flashcard : (game_type == 'mcq' ? Multiple : Open)} alt="" />
+      <Image src={
+        (game_genre == 'flashcard' || game_genre == 'flashcards') 
+          ? Flashcard 
+          : (game_type == 'mcq' ? Multiple : Open)
+      } alt="" />
 
       <div className="list-item-content">
-        <Link href={`/play/quiz/${_id}`} className="list-item-title">
+        <Link 
+          href={
+            history_type 
+              ? (
+                  history_type == 'collections' 
+                    ? `/play/collection/${play_id}` 
+                    : `/play/deck/${play_id}` 
+                ) 
+              : (
+                play_id
+                  ? `/play/${play_id}`
+                  : `/play/${_id}`
+              )
+          } 
+          className="list-item-title"
+        >
           {topic}
         </Link>
         <div className="list-item-date">
@@ -52,7 +87,7 @@ const QuizListItem = ({
         </div>
       </div>
 
-      <div className="list-item-action cta" onClick={() => handleDeleteFromGroup()}>
+      <div className="list-item-action cta" onClick={() => { groupId ? handleDeleteFromGroup() : handleDeleteFromGameHistory() } }>
         <DeleteIcon />
       </div>
 

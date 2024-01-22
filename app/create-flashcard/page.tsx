@@ -1,6 +1,6 @@
 "use client"
 
-import '@styles/creation/creation.scss'
+import css from'@styles/creation/creation.module.scss'
 import FlashcardTypeForm from '@components/flashcard-creation/FlashcardTypeForm'
 import FlashcardMCQForm from '@components/flashcard-creation/FlashcardMCQForm'
 import FlashcardOpenEndForm from '@components/flashcard-creation/FlashcardOpenEndForm'
@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { FlashcardValidation } from '@lib/validations/flashcard.validation'
 import { hasEmptyFields } from '@lib/utils'
 import { createGame } from '@lib/actions/game.actions'
+import { toast } from 'react-toastify'
 
 
 const CreateFlashcard = () => {
@@ -45,13 +46,11 @@ const CreateFlashcard = () => {
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
       const gameId = await createGame(data, false, 'flashcard')
-      console.log(gameId)
-
-      router.push(`/play/flashcard/${gameId}`);
+      router.push(`/play/${gameId}`);
 
     } catch (error) {
       console.log(error)
-      //TODO: toast
+      toast.error("Game creation failed")
     }
   }
 
@@ -69,7 +68,7 @@ const CreateFlashcard = () => {
 
 
   return (
-    <section className="card">
+    <section className={`card ${css.card}`}>
       <FormProvider {...methods}>
 
         { formStep === 0 && <FlashcardTypeForm nextStep={nextStep} /> }

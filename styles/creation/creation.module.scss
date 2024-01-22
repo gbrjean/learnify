@@ -15,21 +15,21 @@
     margin: 0;
   }
 
-  &-header{
+  &_header{
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
   }
 
-  &-ctas{
+  &_ctas{
     display: flex;
-    &:not(.-spaced){
+    &:not(._spaced){
       gap: 2rem;
       button{
         flex: 1;
       }
     }
-    &:is(.-spaced){
+    &:is(._spaced){
       @include mediaMax(sm){
         flex-direction: column;
         gap: 4rem;
@@ -47,7 +47,7 @@
 }
 
 .input{
-  &-wrapper{
+  &_wrapper{
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -72,12 +72,12 @@
 
   }
 
-  &-title{
+  &_title{
     font-weight: 600;
     color: $color-text-75;
   }
 
-  &-answers{
+  &_answers{
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -85,13 +85,13 @@
 }
 
 .quiz{
-  &-options{
+  &_options{
     gap: 1rem;
   }
-  &-answer{
+  &_answer{
     padding: 1rem;
     font-size: 1.4rem;
-    &-no{
+    &_no{
       width: 2.5rem;
       height: 2.5rem;
     }

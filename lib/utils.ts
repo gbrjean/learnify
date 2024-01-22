@@ -22,6 +22,10 @@ export const hasBlankWords = (input: string): boolean => {
 }
 
 export const formatTimeDelta = (seconds: number) => {
+  if(seconds === 0){
+    return '0s'
+  }
+  
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds - hours * 3600) / 60);
   const secs = Math.floor(seconds - hours * 3600 - minutes * 60);
@@ -50,4 +54,46 @@ export const extractWords = (text: string) => {
   const words = matches.map((match) => match.slice(1, -1));
 
   return words;
+};
+
+
+export const sanitizeAnswer = (text: string) => {
+  return text.replace(/<|>/g, '').trim()
+}
+
+
+export const calculateAverageAccuracy = (answers: any[]) => {
+  let averageAccuracy = 0;
+
+  if (answers.length > 0) {
+    const firstAnswer = answers[0]
+
+    if ('percentage_correct' in firstAnswer) {
+
+      const percentages: number[] = answers.map(answer => answer.percentage_correct)
+      const totalPercentage = percentages.reduce((acc, val) => acc + val, 0)
+
+      averageAccuracy = Math.round(totalPercentage / percentages.length)
+
+    } else if ('is_correct' in firstAnswer) {
+
+      let correctAnswers = 0;
+      let wrongAnswers = 0;
+
+      answers.forEach(answer => {
+        if (answer.is_correct) {
+          correctAnswers++;
+        } else {
+          wrongAnswers++;
+        }
+      });
+
+      let total = correctAnswers + wrongAnswers;
+
+      averageAccuracy = Math.round((correctAnswers / total) * 100)
+
+    }
+  }
+  
+  return averageAccuracy
 };

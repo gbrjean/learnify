@@ -1,19 +1,21 @@
 @import '../vars';
 @import '../breakpoints';
 
-section{
+.section{
   display: flex;
   flex-direction: column;
   gap: 3rem;
+
+  button{
+    margin: 1rem auto 0 auto;
+  }
+
 }
 
-button{
-  margin: 1rem auto 0 auto;
-}
 
 .quiz{
 
-  &-header{
+  &_header{
     display: flex;
     align-items: center;
     gap: 2rem;
@@ -29,13 +31,13 @@ button{
     }
   }
 
-  &-status{
+  &_status{
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
 
-  &-stats{
+  &_stats{
     display: flex;
     align-items: center;
     gap: 3.5rem;
@@ -51,7 +53,7 @@ button{
         font-weight: 500;
       }
 
-      &:not(.-accuracy){
+      &:not(._accuracy){
         &:first-child{
           span{
             color: #17A700;
@@ -63,7 +65,7 @@ button{
           }
         }
       }
-      &:is(.-accuracy){
+      &:is(._accuracy){
         span{
           color: $color-secondary-2;
           display: inline-block;
@@ -79,19 +81,19 @@ button{
 
   }
 
-  &-timer{
+  &_timer{
     display: flex;
     gap: 5px;
     align-items: center;
   }
 
-  &-question{
+  &_question{
     padding: 2rem 2.5rem;
     display: flex;
     align-items: center;
     gap: 2.5rem;
 
-    &-no{
+    &_no{
       position: relative;
       display: flex;
       flex-direction: column;
@@ -128,19 +130,33 @@ button{
     }
   }
 
-  &-difficulty_picker{
+  &_difficulty_picker{
+    &_wrapper{
+      position: absolute;
+      width: 100%;
+      height: calc(100svh - 4rem - 6rem - 15vh);
+      left: 0;
+      top: 15vh;
+      z-index: 2;
+      background: #fff;
+    }
+    
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: auto 6rem 5.6rem;
     gap: 4rem;
-    width: min(100%, 60%);
+    width: 90%;
     margin: 15vh auto 0 auto;
+
+    @include mediaMin(xl){
+      width: 60%;
+    }
 
     span{
       font-size: 2rem;
       font-weight: 600;
       color: $color-primary;
-      grid-column: 1 / span 2;
+      grid-column: 1 / span 3;
     }
 
     button{
@@ -153,17 +169,6 @@ button{
         grid-column: 2;
       }
     }
-
-    // &__actions{
-    //   display: flex;
-    //   gap: 2rem;
-    //   margin-bottom: 2rem;
-      
-    //   @include mediaMax(md){
-    //     flex-direction: column;
-    //   }
-
-    // }
   }
 
 

@@ -1,26 +1,29 @@
 import { useFormContext, Controller } from "react-hook-form"
+import css from '@styles/creation/creation.module.scss'
 
-const QuizFormAI = ({onSubmit} : {onSubmit: () => void}) => {
+const QuizFormAI = ({onSubmit, topicParam} : {onSubmit: () => void; topicParam: string | null}) => {
 
   const { control, getValues, setValue, formState, trigger } = useFormContext();
 
   return (
     <>
 
-    <div className="card-header">
+    <div className={css.card_header}>
       <h1>Create Quiz with AI</h1>
       <span>Choose a topic</span>
     </div>
 
-    <div className="input-wrapper">
-      <span className="input-title">Topic</span>
+    <div className={css.input_wrapper}>
+      <span className={css.input_title}>Topic</span>
       <Controller
         name="topic"
         control={control}
+        defaultValue={topicParam ? topicParam : ''}
         render={({ field }) => (
           <input 
             type="text" 
             placeholder="Enter a topic" 
+            defaultValue={topicParam ? topicParam : ''}
             onChange={field.onChange}
           />
         )}
@@ -32,8 +35,8 @@ const QuizFormAI = ({onSubmit} : {onSubmit: () => void}) => {
     </div>
 
     
-    <div className="input-wrapper">
-      <span className="input-title">Number of Questions</span>
+    <div className={css.input_wrapper}>
+      <span className={css.input_title}>Number of Questions</span>
       <Controller
         name="questions_no"
         control={control}
@@ -57,7 +60,7 @@ const QuizFormAI = ({onSubmit} : {onSubmit: () => void}) => {
     </div>
 
     
-    <div className="card-ctas">
+    <div className={css.card_ctas}>
       <button 
         className={getValues("type") == 'mcq' ? "btn-active" : "btn-gray-full"}
         onClick={() => setValue("type", "mcq")}
