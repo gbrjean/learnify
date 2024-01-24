@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 const Page = async () => {
 
   const session = await getCurrentUser()
-  if(!session?.user) return null;
+  if(!session?.user) redirect("/login");
 
   let data
 

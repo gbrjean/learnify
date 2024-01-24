@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Learnify Next',
+  title: 'Learnify',
   description: 'Learnify app',
   referrer: 'no-referrer',
 }
