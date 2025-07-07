@@ -80,7 +80,7 @@ export async function createGame(formData: z.infer<typeof QuizWithAiValidation> 
         } else if(parsedData.type == "mcq"){
           
           let data = (questions as mcqQuestion[]).map(question  => {
-            let options = [question.option1, question.option2, question.option3, question.answer]
+            let options = [question.option1, question.option2, question.option3]
             options = options.sort(() => Math.random() - 0.5)
             return {
               question: question.question,
