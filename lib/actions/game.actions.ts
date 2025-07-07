@@ -1084,13 +1084,13 @@ export async function createQuestions(formData: z.infer<typeof QuizWithAiValidat
       try {
         console.log("cl1")
         questions = await strict_output(
-          "You are a helpful AI that is able to generate mcq questions and answers, the length of each answer should not be more than 15 words, store all answers and questions and options in a JSON array",
+          "You are a helpful AI that is able to generate mcq questions and answers, the length of each answer should not be more than 15 words, only one of the 3 options must be correct and the correct answer must be the exact same word-by-word as one of the options, store all answers and questions and options in a JSON array",
           new Array(questions_no).fill(
             `You are to generate a random hard mcq question about ${topic}`
           ),
           {
             question: "question",
-            answer: "answer with max length of 15 words",
+            answer: "the correct answer with max length of 15 words",
             option1: "option1 with max length of 15 words",
             option2: "option2 with max length of 15 words",
             option3: "option3 with max length of 15 words",
@@ -1098,7 +1098,7 @@ export async function createQuestions(formData: z.infer<typeof QuizWithAiValidat
         );
         console.log("cl2")
       } catch (error) {
-        console.log("cl3")
+        console.log("cl3", error)
         return error
       }
 
