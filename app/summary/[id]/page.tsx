@@ -9,8 +9,8 @@ import { redirect } from "next/navigation"
 
 
 type GroupQuestions = {
-  question: string[];
-  correct_answer: string[];
+  question: string;
+  correct_answer: string;
 }[];
 
 const SummaryPage = async ({ params }: { params: { id: string } }) => {
@@ -45,7 +45,7 @@ const SummaryPage = async ({ params }: { params: { id: string } }) => {
         });
       }
       return acc;
-    }, [] as { question: string; correct_answer: string; }[]);
+    }, [] as GroupQuestions);
   }
 
 

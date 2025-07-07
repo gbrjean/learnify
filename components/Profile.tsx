@@ -21,7 +21,6 @@ const Profile = ({data} : {data: UserProfile}) => {
           <p>View statistics for quizzes</p>
 
           <div className={css.stats}> 
-          {/* // GRID cu grid-row de la Average TT */}
             <div>
               <span className={css.stats_title}>Average accuracy</span>
               <span className={css.stats_value}>{data.practicedQuizzes ? data.practicedQuizzes.averageAccuracy : 0}%</span>
